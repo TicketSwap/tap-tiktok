@@ -33,14 +33,14 @@ class AdAccountsStream(TikTokStream):
         th.Property("promotion_center_city", th.StringType),
         th.Property("display_timezone", th.StringType),
         th.Property("email", th.StringType),
-        th.Property("telephone", th.StringType),
-        th.Property("phonenumber", th.StringType),
+        th.Property("telephone_number", th.StringType),
+        th.Property("cellphone_number", th.StringType),
         th.Property("language", th.StringType),
         th.Property("industry", th.StringType),
         th.Property("create_time", th.IntegerType),
         th.Property("address", th.StringType),
         th.Property("role", th.StringType),
-        th.Property("reason", th.StringType),
+        th.Property("rejection_reason", th.StringType),
         th.Property("promotion_center_province", th.StringType),
         th.Property("timezone", th.StringType),
         th.Property("license_url", th.StringType),
@@ -51,7 +51,9 @@ class AdAccountsStream(TikTokStream):
         th.Property("description", th.StringType),
         th.Property("license_no", th.StringType),
         th.Property("owner_bc_id", th.StringType),
+        th.Property("advertiser_account_type", th.StringType),
     ).to_dict()
+    schema["additionalProperties"] = True
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
