@@ -141,7 +141,7 @@ class AdGroupsStream(TikTokStream):
         th.Property("include_custom_actions", th.ArrayType(th.StringType)),
         th.Property("ios14_quota_type", th.StringType),
         th.Property("bid_type", th.StringType),
-        th.Property("app_id", th.IntegerType),
+        th.Property("app_id", th.StringType),
         th.Property("split_test_adgroup_ids", th.ArrayType(th.StringType)),
         th.Property("advertiser_id", th.StringType),
         th.Property("buy_reach", th.IntegerType),
