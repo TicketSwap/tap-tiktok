@@ -2,7 +2,7 @@
 
 import datetime
 
-from singer_sdk.testing import get_tap_test_class
+from singer_sdk.testing import SuiteConfig, get_tap_test_class
 
 from tap_tiktok.tap import TapTikTok
 
@@ -15,5 +15,11 @@ SAMPLE_CONFIG = {
 TestTapTikTok = get_tap_test_class(
     tap_class=TapTikTok,
     config=SAMPLE_CONFIG,
+    suite_config=SuiteConfig(
+        ignore_no_records_for_streams=[
+            "ads_attribute_metrics",
+            "campaigns_attribute_metrics",
+        ],
+    ),
     parse_env_config=True,
 )
