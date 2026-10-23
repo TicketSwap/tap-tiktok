@@ -56,8 +56,8 @@ tap-tiktok --config CONFIG --discover > ./catalog.json
 ### Initialize your Development Environment
 
 ```bash
-pipx install poetry
-poetry install
+pipx install uv
+uv sync
 ```
 
 ### Create and Run Tests
@@ -66,13 +66,13 @@ Create tests within the `tap_tiktok/tests` subfolder and
   then run:
 
 ```bash
-poetry run pytest
+uv run pytest
 ```
 
-You can also test the `tap-tiktok` CLI interface directly using `poetry run`:
+You can also test the `tap-tiktok` CLI interface directly using `uv run`:
 
 ```bash
-poetry run tap-tiktok --help
+uv run tap-tiktok --help
 ```
 
 ### Testing with [Meltano](https://www.meltano.com)

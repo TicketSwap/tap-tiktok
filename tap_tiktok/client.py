@@ -5,15 +5,24 @@ import requests
 from typing import Any, Dict, Iterable, Optional
 
 from singer_sdk.helpers.jsonpath import extract_jsonpath
+from singer_sdk.pagination import LegacyStreamPaginator
 from singer_sdk.streams import RESTStream
 
 DATE_FORMAT = "%Y-%m-%d"
+
+
+class TikTokPaginator(LegacyStreamPaginator):
+    def continue_if_empty(self, response: requests.Response) -> bool:
+        return True
 
 
 class TikTokStream(RESTStream):
     url_base = "https://business-api.tiktok.com/open_api/v1.3"
 
     records_jsonpath = "$.data.list[*]"
+
+    def get_new_paginator(self) -> TikTokPaginator:
+        return TikTokPaginator(self)
 
     def _configured_advertiser_ids(self) -> list[str]:
         """Return advertiser IDs from config (supports advertiser_ids or advertiser_id)."""

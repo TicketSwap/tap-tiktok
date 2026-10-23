@@ -1,42 +1,84 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling>=1,<2"]
+build-backend = "hatchling.build"
+
+[project]
 name = "tap-tiktok"
 version = "0.0.1"
 description = "`tap-tiktok` is a Singer tap for TikTok, built with the Meltano SDK for Singer Taps."
-authors = ["Gary James"]
+readme = "README.md"
+authors = [{ name = "Gary James" }]
 keywords = [
     "ELT",
     "TikTok",
 ]
-license = "Apache 2.0"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.34.2,<3",
+    "singer-sdk>=0.54.9,<0.55",
+]
 
-[tool.poetry.dependencies]
-python = "<3.11,>=3.7.1"
-requests = "^2.25.1"
-singer-sdk = "^0.4.4"
+[project.scripts]
+tap-tiktok = "tap_tiktok.tap:TapTikTok.cli"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.4.2"
-tox = "^3.24.4"
-flake8 = "^3.9.2"
-black = "^21.9b0"
-pydocstyle = "^6.1.1"
-mypy = "^0.910"
-types-requests = "^2.26.1"
-isort = "^5.10.1"
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+    "black>=26.10.1,<27",
+    "flake8>=7.4.1,<8",
+    "isort>=9.0.2,<10",
+    "mypy>=2.4.0,<3",
+    "pydocstyle>=6.3.0,<7",
+    "types-requests>=2.33.0.20261006,<3",
+]
+test = [
+    "pytest>=9.1.1,<10",
+]
 
 [tool.isort]
 profile = "black"
-multi_line_output = 3 # Vertical Hanging Indent
+multi_line_output = 3
 src_paths = "tap_tiktok"
 
-[build-system]
-# Uncomment the pinned version in favor of the git URL once
-# https://github.com/python-poetry/poetry-core/pull/257 is merged
-# and a new poetry-core 1.0.x is released
-# requires = ["poetry-core>=1.0.0"]
-requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@main"]
-build-backend = "poetry.core.masonry.api"
+[tool.pydocstyle]
+ignore = "D105,D203,D213"
 
-[tool.poetry.scripts]
-# CLI declaration
-tap-tiktok = 'tap_tiktok.tap:TapTikTok.cli'
+[tool.tox]
+requires = [
+    "tox>=4.53",
+    "tox-uv>=1.35",
+]
+env_list = [
+    { prefix = "3.", start = 11 },
+]
+
+[tool.tox.env_run_base]
+description = "run tests on Python {env_name}"
+runner = "uv-venv-lock-runner"
+pass_env = [
+    "CI",
+    "GITHUB_*",
+    "TAP_TIKTOK_*",
+]
+dependency_groups = [ "test" ]
+commands = [ [ "pytest", { replace = "posargs", default = [ "tap_tiktok/tests" ], extend = true } ] ]
+
+[tool.tox.env.lint]
+description = "check formatting, lint and docstyle, and type check"
+dependency_groups = [ "dev" ]
+commands = [
+    [ "black", "--check", "--diff", "tap_tiktok/" ],
+    [ "isort", "--check", "tap_tiktok" ],
+    [ "flake8", "tap_tiktok" ],
+    [ "pydocstyle", "tap_tiktok" ],
+    [ "mypy", "tap_tiktok", "--exclude=tap_tiktok/tests" ],
+]

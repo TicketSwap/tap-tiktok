@@ -3,7 +3,6 @@
 import copy
 import json
 import datetime
-import dateutil
 import requests
 from typing import Any, Dict, Iterable, Optional
 from urllib.parse import urlparse
@@ -54,7 +53,6 @@ class AdAccountsStream(TikTokStream):
         th.Property("owner_bc_id", th.StringType),
         th.Property("advertiser_account_type", th.StringType),
     ).to_dict()
-    schema["additionalProperties"] = True
 
     def get_url_params(self, context: Optional[dict], next_page_token: Optional[Any]) -> Dict[str, Any]:
         advertiser_id = self._resolve_advertiser_id(context)
@@ -90,7 +88,6 @@ class CampaignsStream(TikTokStream):
         th.Property("budget", th.NumberType),
         th.Property("roas_bid", th.NumberType),
     ).to_dict()
-    schema["additionalProperties"] = True
 
 
 class AdGroupsStream(TikTokStream):
@@ -261,7 +258,7 @@ class AdsMetricsByDayStream(TikTokReportsStream):
             if start_date is None:
                 if not self.config.get("start_date"):
                     raise RuntimeError("Missing start_date. Set `start_date` in config.")
-                start_date = dateutil.parser.isoparse(self.config["start_date"])
+                start_date = datetime.datetime.fromisoformat(self.config["start_date"])
 
             lookback_window = self.config["lookback"]
             if lookback_window > 0:
@@ -270,7 +267,7 @@ class AdsMetricsByDayStream(TikTokReportsStream):
                         start_date,
                         datetime.datetime.now(tz=start_date.tzinfo) - datetime.timedelta(days=lookback_window),
                     ),
-                    dateutil.parser.isoparse(self.config["start_date"]),
+                    datetime.datetime.fromisoformat(self.config["start_date"]),
                 )
 
         yesterday = datetime.datetime.now(tz=start_date.tzinfo) - datetime.timedelta(days=1)
