@@ -3,12 +3,15 @@
 import json
 import requests
 from typing import Any, Dict, Iterable, Optional
+from urllib.parse import parse_qs, urlparse
 
+from singer_sdk.exceptions import FatalAPIError, RetriableAPIError
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.pagination import LegacyStreamPaginator
 from singer_sdk.streams import RESTStream
 
 DATE_FORMAT = "%Y-%m-%d"
+RETRIABLE_CODES = {40100, 50000, 50002}
 
 
 class TikTokPaginator(LegacyStreamPaginator):
@@ -23,6 +26,19 @@ class TikTokStream(RESTStream):
 
     def get_new_paginator(self) -> TikTokPaginator:
         return TikTokPaginator(self)
+
+    def validate_response(self, response: requests.Response) -> None:
+        super().validate_response(response)
+        body = response.json()
+        code = body.get("code", 0)
+        if code == 0:
+            return
+        url = urlparse(response.request.url)
+        advertiser_id = parse_qs(url.query).get("advertiser_id", ["?"])[0]
+        msg = f"TikTok API error {code} on {url.path} for advertiser {advertiser_id}: {body.get('message')}"
+        if code in RETRIABLE_CODES:
+            raise RetriableAPIError(msg, response)
+        raise FatalAPIError(msg)
 
     def _configured_advertiser_ids(self) -> list[str]:
         """Return advertiser IDs from config (supports advertiser_ids or advertiser_id)."""

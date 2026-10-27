@@ -336,7 +336,7 @@ ATTRIBUTE_METRICS = [
     "objective_type",
     "campaign_id",
     "adgroup_name",
-    "placement",
+    "placement_type",
     "adgroup_id",
     "ad_name",
     "ad_text",
@@ -346,6 +346,8 @@ ATTRIBUTE_METRICS = [
     "promotion_type",
     "dpa_target_audience_type",
 ]
+
+CAMPAIGN_ATTRIBUTE_METRICS = ["campaign_name", "objective_type"]
 
 
 class AdsAttributeMetricsStream(AdsMetricsByDayStream):
@@ -370,8 +372,9 @@ class AdsAttributeMetricsStream(AdsMetricsByDayStream):
             "service_type": "AUCTION",
             "report_type": "BASIC",
             "data_level": "AUCTION_AD",
-            "dimensions": json.dumps(["ad_id", "stat_time_day"]),
+            "dimensions": json.dumps(["ad_id"]),
             "metrics": json.dumps(self.tiktok_metrics),
+            "query_lifetime": "true",
         }
         if next_page_token:
             params["page"] = next_page_token["page"]
@@ -389,16 +392,16 @@ class AdsAttributeMetricsStream(AdsMetricsByDayStream):
 class CampaignsAttributeMetricsStream(CampaignMetricsByDayStream):
     name = "campaigns_attribute_metrics"
     status_field = "campaign_status"
-    tiktok_metrics = ATTRIBUTE_METRICS
+    tiktok_metrics = CAMPAIGN_ATTRIBUTE_METRICS
     path = "/"
     primary_keys = ["campaign_id"]
     replication_key = None
     properties = [
-        th.Property("campaign_id", th.IntegerType),
+        th.Property("campaign_id", th.StringType),
     ]
     properties += [
         th.Property(metric, th.StringType if metric in ["campaign_id", "adgroup_id"] else th.StringType)
-        for metric in ATTRIBUTE_METRICS
+        for metric in CAMPAIGN_ATTRIBUTE_METRICS
     ]
     schema = th.PropertiesList(*properties).to_dict()
 
@@ -409,8 +412,9 @@ class CampaignsAttributeMetricsStream(CampaignMetricsByDayStream):
             "service_type": "AUCTION",
             "report_type": "BASIC",
             "data_level": "AUCTION_CAMPAIGN",
-            "dimensions": json.dumps(["campaign_id", "stat_time_day"]),
+            "dimensions": json.dumps(["campaign_id"]),
             "metrics": json.dumps(self.tiktok_metrics),
+            "query_lifetime": "true",
         }
         if next_page_token:
             params["page"] = next_page_token["page"]
